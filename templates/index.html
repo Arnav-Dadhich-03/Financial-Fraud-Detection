@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FraudGuard.live — Real-Time Fraud Monitoring</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+<body>
+  <div class="app">
+
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark">◆</span>
+        <span>FraudGuard<span class="brand-accent">.live</span></span>
+      </div>
+      <div class="conn-status" id="connStatus">
+        <span class="pulse-dot" id="pulseDot"></span>
+        <span id="connText">Connecting…</span>
+      </div>
+      <button class="reset-btn" id="resetBtn">Reset session</button>
+    </header>
+
+    <section class="stats-strip">
+      <div class="stat-card">
+        <div class="stat-label">Transactions Processed</div>
+        <div class="stat-value" id="statTotal">0</div>
+      </div>
+      <div class="stat-card stat-card--alert">
+        <div class="stat-label">Frauds Flagged</div>
+        <div class="stat-value" id="statFraud">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Fraud Rate</div>
+        <div class="stat-value" id="statRate">0.00%</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Avg Transaction</div>
+        <div class="stat-value" id="statAmount">$0.00</div>
+      </div>
+      <div class="stat-card stat-card--accent">
+        <div class="stat-label">Live Model Accuracy</div>
+        <div class="stat-value" id="statAccuracy">—</div>
+      </div>
+    </section>
+
+    <main class="grid">
+      <section class="panel ledger-panel">
+        <div class="panel-header">
+          <span>Live Transaction Ledger</span>
+          <span class="panel-sub">scored the instant each transaction arrives</span>
+        </div>
+        <div class="ledger-table-head">
+          <span>ID</span><span>Time</span><span>Merchant</span><span>Location</span><span>Card</span><span>Amount</span><span>Verdict</span>
+        </div>
+        <div class="ledger" id="ledger"></div>
+      </section>
+
+      <aside class="side-col">
+        <section class="panel">
+          <div class="panel-header"><span>Fraud vs Normal</span></div>
+          <div class="chart-wrap chart-wrap--donut">
+            <canvas id="donutChart"></canvas>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header"><span>Fraud Rate Trend</span></div>
+          <div class="chart-wrap">
+            <canvas id="trendChart"></canvas>
+          </div>
+        </section>
+
+        <section class="panel alerts-panel">
+          <div class="panel-header"><span>Recent Alerts</span></div>
+          <div class="alerts-list" id="alertsList">
+            <div class="empty-state">No alerts yet. Watching the feed…</div>
+          </div>
+        </section>
+      </aside>
+    </main>
+
+    <footer class="footnote">
+      Live feed replays a held-out, labeled validation pool through the trained Random Forest model in real time.
+      Merchant, city, and card network are simulated display metadata — the model only ever sees Time, V1–V28, and Amount.
+    </footer>
+
+  </div>
+
+  <script src="/static/js/chart.umd.js"></script>
+  <script src="/static/js/dashboard.js"></script>
+</body>
+</html>

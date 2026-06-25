@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Raw dataset (download separately from Kaggle; not committed due to size/license)
+creditcard.csv
+
+# Logs
+*.log
+server.log
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
+
+# Env files
+.env
