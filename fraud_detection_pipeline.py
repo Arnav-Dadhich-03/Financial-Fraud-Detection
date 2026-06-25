@@ -1,27 +1,3 @@
-"""
-fraud_detection_pipeline.py
-----------------------------
-End-to-end ML pipeline for the Financial Fraud Detection project.
-
-What it does:
-  1. Loads the Kaggle "creditcard.csv" dataset if it's present in the project
-     root. If it isn't (e.g. you haven't downloaded it yet), it auto-generates
-     a realistic synthetic stand-in with the same schema (Time, V1-V28, Amount,
-     Class) and the same ~99.8% / 0.2% class imbalance, so the whole pipeline
-     and the live API run out of the box.
-  2. Performs lightweight EDA and saves class_distribution.png.
-  3. Splits the data, balances the training set with SMOTE.
-  4. Trains a RandomForestClassifier.
-  5. Evaluates the model and saves confusion_matrix.png.
-  6. Serializes the trained model to fraud_model.pkl.
-  7. Serializes a labeled "stream pool" (stream_data.pkl) -- a held-out batch
-     of transactions (oversampled for fraud) that app.py replays over the
-     WebSocket to simulate a live, real-time transaction feed.
-
-Run it with:
-    python fraud_detection_pipeline.py
-"""
-
 import os
 import pickle
 
@@ -66,8 +42,7 @@ def load_or_generate_dataset(n_samples: int = 150_000, fraud_ratio: float = 0.00
 
     rng = np.random.RandomState(RANDOM_STATE)
 
-    # 28 anonymized/PCA-like features (V1-V28) with a deliberately weak,
-    # imbalanced signal -- this is what makes fraud genuinely hard to catch.
+
     X, y = make_classification(
         n_samples=n_samples,
         n_features=28,
@@ -83,11 +58,9 @@ def load_or_generate_dataset(n_samples: int = 150_000, fraud_ratio: float = 0.00
     df = pd.DataFrame(X, columns=[f"V{i}" for i in range(1, 29)])
     df[TARGET_COLUMN] = y
 
-    # Time: cumulative seconds across a 2-day trading window, sorted.
     df["Time"] = np.sort(rng.uniform(0, 172_800, size=n_samples)).astype(int)
 
-    # Amount: legitimate transactions follow a lognormal spend distribution;
-    # fraud skews toward small "card testing" amounts with occasional spikes.
+
     legit_amount = rng.lognormal(mean=3.0, sigma=1.3, size=n_samples)
     fraud_amount = np.where(
         rng.rand(n_samples) < 0.7,
@@ -131,11 +104,7 @@ def plot_confusion_matrix(y_true, y_pred) -> None:
 
 
 def build_stream_pool(X_test: pd.DataFrame, y_test: pd.Series, fraud_weight: float = 0.12, pool_size: int = 2000) -> pd.DataFrame:
-    """Build the pool of labeled transactions the live API replays over the
-    WebSocket. Fraud cases are oversampled (true-world fraud is ~0.2% of
-    traffic, which would mean waiting ages to see one on a live dashboard) so
-    the demo actually shows the model catching fraud in real time.
-    """
+  
     fraud_idx = y_test[y_test == 1].index
     normal_idx = y_test[y_test == 0].index
 

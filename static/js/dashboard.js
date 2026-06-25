@@ -1,16 +1,8 @@
-/* FraudGuard.live — dashboard client
-   Connects to the /ws/stream WebSocket, renders each scored transaction
-   into the live ledger the instant it arrives, and keeps the analytics
-   panels (stat cards, donut, trend, recent alerts) in sync. */
 
-// If the frontend is deployed separately from the backend (e.g. this page
-// on Netlify, the API on Render), set API_BASE to the backend's https URL,
-// e.g. "https://fraud-detection-api.onrender.com". Leave it as "" when the
-// frontend is served by the same FastAPI app (the default for this repo).
 const API_BASE = "";
 
 const LEDGER_MAX_ROWS = 120;
-const TREND_WINDOW = 20;   // rolling window size used to compute the trend point
+const TREND_WINDOW = 20; 
 const TREND_MAX_POINTS = 30;
 
 const els = {
@@ -33,9 +25,7 @@ const fmtTime = (epochSeconds) => {
   return d.toLocaleTimeString(undefined, { hour12: false });
 };
 
-// ---------------------------------------------------------------------
-// Charts
-// ---------------------------------------------------------------------
+
 const donutChart = new Chart(document.getElementById("donutChart"), {
   type: "doughnut",
   data: {
@@ -90,7 +80,7 @@ const trendChart = new Chart(document.getElementById("trendChart"), {
   },
 });
 
-const recentStatuses = []; // rolling buffer of 1 (fraud) / 0 (normal) for the trend line
+const recentStatuses = []; 
 
 function pushTrendPoint(isFraud) {
   recentStatuses.push(isFraud ? 1 : 0);
@@ -106,9 +96,6 @@ function pushTrendPoint(isFraud) {
   trendChart.update();
 }
 
-// ---------------------------------------------------------------------
-// Ledger + alerts rendering
-// ---------------------------------------------------------------------
 function renderLedgerRow(tx) {
   const row = document.createElement("div");
   row.className = "ledger-row" + (tx.is_fraud ? " is-fraud" : "");
@@ -157,9 +144,6 @@ function updateStats(stats) {
   donutChart.update();
 }
 
-// ---------------------------------------------------------------------
-// WebSocket connection (auto-reconnects if the server restarts)
-// ---------------------------------------------------------------------
 let socket;
 
 function connect() {
@@ -193,9 +177,7 @@ function connect() {
 
 connect();
 
-// ---------------------------------------------------------------------
-// Reset session
-// ---------------------------------------------------------------------
+
 els.resetBtn.addEventListener("click", async () => {
   await fetch(`${API_BASE}/api/reset`, { method: "POST" });
   els.ledger.innerHTML = "";
@@ -207,5 +189,4 @@ els.resetBtn.addEventListener("click", async () => {
   updateStats({ total: 0, fraud: 0, normal: 0, fraud_rate: 0, avg_amount: 0, accuracy: 0 });
 });
 
-// Initial paint from /api/stats in case the WS takes a beat to connect
 fetch(`${API_BASE}/api/stats`).then((r) => r.json()).then(updateStats).catch(() => {});

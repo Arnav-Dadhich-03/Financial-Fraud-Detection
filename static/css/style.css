@@ -1,10 +1,4 @@
-/* ===========================================================
-   FraudGuard.live — design tokens
-   Terminal-ledger console aesthetic: near-black surface, hairline
-   borders, mono type for data/numbers, restrained cyan "pulse" as
-   the one signature accent. Green/red are functional (verdict),
-   not decorative.
-=========================================================== */
+
 
 :root {
   --bg: #0b0e14;
@@ -45,7 +39,6 @@ html, body {
   padding: 20px 28px 40px;
 }
 
-/* ---------- Topbar ---------- */
 
 .topbar {
   display: flex;
@@ -118,7 +111,6 @@ html, body {
 }
 .reset-btn:hover { border-color: var(--cyan); background: var(--cyan-dim); }
 
-/* ---------- Stat strip ---------- */
 
 .stats-strip {
   display: grid;
@@ -152,7 +144,6 @@ html, body {
 .stat-card--alert .stat-value { color: var(--red); }
 .stat-card--accent .stat-value { color: var(--cyan); }
 
-/* ---------- Main grid ---------- */
 
 .grid {
   display: grid;
@@ -191,7 +182,6 @@ html, body {
   gap: 16px;
 }
 
-/* ---------- Ledger ---------- */
 
 .ledger-table-head, .ledger-row {
   display: grid;
@@ -260,12 +250,9 @@ html, body {
 .ledger::-webkit-scrollbar { width: 8px; }
 .ledger::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
-/* ---------- Charts ---------- */
 
 .chart-wrap { padding: 14px 18px 18px; height: 200px; }
 .chart-wrap--donut { height: 190px; }
-
-/* ---------- Alerts ---------- */
 
 .alerts-panel { flex: 1; }
 .alerts-list { max-height: 320px; overflow-y: auto; }
@@ -296,7 +283,6 @@ html, body {
 .alert-item-amount { color: var(--red); font-weight: 700; }
 .alert-item-meta { font-size: 11.5px; color: var(--muted); }
 
-/* ---------- Footnote ---------- */
 
 .footnote {
   margin-top: 22px;
@@ -306,7 +292,6 @@ html, body {
   line-height: 1.6;
 }
 
-/* ---------- Responsive ---------- */
 
 @media (max-width: 980px) {
   .grid { grid-template-columns: 1fr; }

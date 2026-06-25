@@ -1,25 +1,3 @@
-"""
-app.py
-------
-FastAPI service for the Financial Fraud Detection project.
-
-Endpoints:
-  GET  /                -> the live monitoring dashboard (HTML)
-  POST /predict          -> score a single transaction (the original, classic endpoint)
-  WS   /ws/stream         -> live, real-time transaction feed: each message is a
-                             transaction scored by the model the instant it "arrives"
-  GET  /api/stats         -> current snapshot of running analytics (for first paint)
-  POST /api/reset         -> reset the in-memory analytics counters
-
-The live stream replays a held-out, labeled pool of transactions produced by
-fraud_detection_pipeline.py (stream_data.pkl), oversampled for fraud so the
-dashboard actually demonstrates the model catching something. Each transaction
-is scored by the real model in real time -- nothing about the prediction is
-canned. A few cosmetic fields (merchant, city, card network) are randomly
-attached purely for UI flavor, since the underlying V1-V28 features are
-anonymized/PCA-style and carry no real merchant data.
-"""
-
 import asyncio
 import pickle
 import random
@@ -46,9 +24,7 @@ STREAM_DATA_PATH = BASE_DIR / "stream_data.pkl"
 
 app = FastAPI(title="Financial Fraud Detection API", version="2.0.0")
 
-# Allow the dashboard to be hosted on a different domain than the API
-# (e.g. a static frontend on Netlify calling a backend on Render).
-# Set ALLOWED_ORIGINS as a comma-separated list in production instead of "*".
+
 _allowed_origins = os.getenv("ALLOWED_ORIGINS", "*")
 app.add_middleware(
     CORSMiddleware,
@@ -61,9 +37,6 @@ app.add_middleware(
 app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
-# ---------------------------------------------------------------------------
-# Load model + stream pool at startup
-# ---------------------------------------------------------------------------
 with open(MODEL_PATH, "rb") as f:
     _bundle = pickle.load(f)
     MODEL = _bundle["model"]
@@ -72,7 +45,6 @@ with open(MODEL_PATH, "rb") as f:
 with open(STREAM_DATA_PATH, "rb") as f:
     STREAM_POOL: pd.DataFrame = pickle.load(f)
 
-# Cosmetic-only metadata for the live feed (model never sees these)
 MERCHANT_CATEGORIES = [
     "Electronics", "Grocery", "Travel", "Online Retail", "Restaurants",
     "Fuel Station", "Subscription", "ATM Withdrawal", "Jewelry", "Utilities",
@@ -83,10 +55,7 @@ CITIES = [
 ]
 CARD_NETWORKS = ["Visa", "Mastercard", "Amex", "Discover"]
 
-# ---------------------------------------------------------------------------
-# Pydantic schema for POST /predict, built dynamically from FEATURE_COLUMNS
-# so it always matches whatever the pipeline trained on.
-# ---------------------------------------------------------------------------
+
 _predict_fields = {col: (float, Field(..., description=f"Feature: {col}")) for col in FEATURE_COLUMNS}
 TransactionIn = create_model("TransactionIn", **_predict_fields)
 
@@ -116,9 +85,7 @@ def predict(transaction: TransactionIn):
     return score_row(transaction.dict())
 
 
-# ---------------------------------------------------------------------------
-# In-memory live analytics (reset on restart, or via /api/reset)
-# ---------------------------------------------------------------------------
+
 class Analytics:
     def __init__(self):
         self.total = 0
@@ -126,7 +93,7 @@ class Analytics:
         self.amount_sum = 0.0
         self.correct = 0
         self.recent_alerts = deque(maxlen=25)
-        self.timeline = deque(maxlen=60)  # rolling (timestamp, fraud_count_in_bucket, total_in_bucket)
+        self.timeline = deque(maxlen=60)  
         self.started_at = time.time()
 
     def record(self, tx: dict):
